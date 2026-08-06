@@ -488,7 +488,7 @@ export default function CADStudio() {
 
       let foundHandle = false;
       for (let i = 0; i < entities.length; i++) {
-        if (entities[i].selected && entities[i].leadIn && distance(entities[i].leadIn, pos) < 15 / camera.zoom) {
+        if (entities[i].leadIn && distance(entities[i].leadIn, pos) < 15 / camera.zoom) {
           setLeadInHandle({ entityIndex: i }); foundHandle = true; break;
         }
       }
@@ -504,7 +504,7 @@ export default function CADStudio() {
       }
       if (!foundHandle) {
         for (let i = 0; i < entities.length; i++) {
-          if (entities[i].selected && entities[i].leadOut && distance(entities[i].leadOut, pos) < 15 / camera.zoom) {
+          if (entities[i].leadOut && distance(entities[i].leadOut, pos) < 15 / camera.zoom) {
             setLeadOutHandle({ entityIndex: i }); foundHandle = true; break;
           }
         }
