@@ -542,12 +542,7 @@ export function useCADOperations(ctx) {
         if (!entity) return data;
         const isHole = isEntityInsideAnother(data, entities);
         let direction;
-        if (entity.type === 'path' && entity.closed) {
-          let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity;
-          entity.points.forEach(p => { minX=Math.min(minX,p.x);minY=Math.min(minY,p.y);maxX=Math.max(maxX,p.x);maxY=Math.max(maxY,p.y); });
-          const area = (maxX-minX)*(maxY-minY);
-          direction = area > 100000 ? -1 : 1;
-        } else { direction = isHole ? 1 : -1; }
+        direction = isHole ? 1 : -1;
         let leadInPoint = null;
         if (entity.type === 'line') {
           const dx = entity.end.x-entity.start.x, dy = entity.end.y-entity.start.y;
@@ -555,11 +550,12 @@ export function useCADOperations(ctx) {
           if (len > 0.1) { leadInPoint = { x: entity.start.x + (-dy/len)*direction*d, y: entity.start.y + (dx/len)*direction*d }; }
           else { leadInPoint = { x: entity.start.x - d*direction, y: entity.start.y }; }
         } else if (entity.type === 'path') {
-          let cx=0,cy=0; entity.points.forEach(p => { cx+=p.x;cy+=p.y; }); cx/=entity.points.length; cy/=entity.points.length;
-          let p0=entity.points[0], maxDist=0;
-          entity.points.forEach(p => { const dd=Math.hypot(p.x-cx,p.y-cy); if(dd>maxDist){maxDist=dd;p0=p;} });
-          const dx=cx-p0.x, dy=cy-p0.y, len=Math.hypot(dx,dy);
-          if (len>0) leadInPoint = { x: p0.x+(dx/len)*d, y: p0.y+(dy/len)*d };
+          const p0 = entity.points[0];
+          const p1 = entity.points[1] || entity.points[0];
+          const dx = p1.x - p0.x, dy = p1.y - p0.y;
+          const len = Math.hypot(dx, dy);
+          if (len > 0.1) { leadInPoint = { x: p0.x + (-dy/len)*direction*d, y: p0.y + (dx/len)*direction*d }; }
+          else { leadInPoint = { x: p0.x - d*direction, y: p0.y }; }
         } else if (entity.type === 'circle') {
           const r = isHole ? (entity.radius-d) : (entity.radius+d);
           leadInPoint = { x: entity.center.x + r, y: entity.center.y };
